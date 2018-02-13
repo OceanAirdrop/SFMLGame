@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static OceanAirdrop.SharedLib.XboxController;
 
-namespace _02_JoystickInput
+namespace OceanAirdrop.JoystickInput
 {
     class Program
     {
