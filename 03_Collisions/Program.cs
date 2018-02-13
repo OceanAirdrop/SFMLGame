@@ -60,37 +60,42 @@ namespace OceanAirdrop.Collisions
                 app.Draw(enemy);
                 app.Draw(player);
 
-                Console.WriteLine(XboxController.RefreshButtonPressed());
-                Console.WriteLine(XboxController.RefreshAxisPressed());
-
-                if (JoyState.HasFlag(ControllerState.DPAD_UP_PRESSED))
-                    player.Position = new Vector2f(player.Position.X, player.Position.Y - 1);
-
-                if (JoyState.HasFlag(ControllerState.DPAD_DOWN_PRESSED))
-                    player.Position = new Vector2f(player.Position.X, player.Position.Y + 1);
-
-                if (JoyState.HasFlag(ControllerState.DPAD_LEFT_PRESSED))
-                    player.Position = new Vector2f(player.Position.X - 1, player.Position.Y);
-
-                if (JoyState.HasFlag(ControllerState.DPAD_RIGHT_PRESSED))
-                    player.Position = new Vector2f(player.Position.X + 1, player.Position.Y);
-
-                if (JoyState.HasFlag(ControllerState.B_PRESSED))
-                    player.Position = RespawnCentreScreen();
+                RespondToJoystickEvents(player);
 
                 if (IsPlayerOverFood(player, food) == true)
                 {
                     // Respawn food and increase health!
-                    food.Position = RespawnNewLocation();
+                    food.Position = RespawnRandomLocation();
                 }
 
                 if (IsPlayerOverEnemy(player, enemy) == true)
-                    player.Position = RespawnCentreScreen();
+                    player.Position = RespawnTopLeftScreen();
 
 
                 // Update the window
                 app.Display();
             }
+        }
+
+        static void RespondToJoystickEvents(RectangleShape player)
+        {
+            Console.WriteLine(XboxController.RefreshButtonPressed());
+            Console.WriteLine(XboxController.RefreshAxisPressed());
+
+            if (JoyState.HasFlag(ControllerState.DPAD_UP_PRESSED))
+                player.Position = new Vector2f(player.Position.X, player.Position.Y - 1);
+
+            if (JoyState.HasFlag(ControllerState.DPAD_DOWN_PRESSED))
+                player.Position = new Vector2f(player.Position.X, player.Position.Y + 1);
+
+            if (JoyState.HasFlag(ControllerState.DPAD_LEFT_PRESSED))
+                player.Position = new Vector2f(player.Position.X - 1, player.Position.Y);
+
+            if (JoyState.HasFlag(ControllerState.DPAD_RIGHT_PRESSED))
+                player.Position = new Vector2f(player.Position.X + 1, player.Position.Y);
+
+            if (JoyState.HasFlag(ControllerState.B_PRESSED))
+                player.Position = RespawnCentreScreen();
         }
 
         static bool IsPlayerOverFood(RectangleShape player, RectangleShape food)
@@ -119,7 +124,7 @@ namespace OceanAirdrop.Collisions
             return result;
         }
 
-        static Vector2f RespawnNewLocation()
+        static Vector2f RespawnRandomLocation()
         {
             float x = RandomNum.Next(1, Convert.ToInt32(ScreenWidth));
             float y = RandomNum.Next(1, Convert.ToInt32(ScreenHeight));
@@ -130,6 +135,11 @@ namespace OceanAirdrop.Collisions
         static Vector2f RespawnCentreScreen()
         {
             return new Vector2f(ScreenWidth / 2, ScreenHeight / 2);
+        }
+
+        static Vector2f RespawnTopLeftScreen()
+        {
+            return new Vector2f(0,0);
         }
     }
 }
