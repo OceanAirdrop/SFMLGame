@@ -56,9 +56,7 @@ namespace OceanAirdrop.Sprites
 
         static void SetupFont()
         {
-            // Load font
             var appPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-
             GameFont = new Font(string.Format(@"{0}\Assets\Fonts\zorque.ttf", appPath));
         }
 
@@ -66,28 +64,15 @@ namespace OceanAirdrop.Sprites
         {
             var appPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
-            // var playerImage = string.Format(@"{0}\Idle__000.png", appPath);
-
-            var playerImage = string.Format(@"{0}\Assets\Images\player_128.png", appPath);
-
-
-            // TODO: Insert Update Code Here
-            Texture playertxr = new Texture(playerImage);
-            
-            PlayerSprite = new Sprite(playertxr);
-            PlayerSprite.Position = new Vector2f(100, 100);
-           // PlayerSprite.Scale = new Vector2f(200, 200);
+            PlayerSprite = new Sprite(new Texture(string.Format(@"{0}\Assets\Images\player_128.png", appPath)));
+            PlayerSprite.Position = RespawnRandomLocation();
         }
 
         static void SetupBombSprite()
         {
             var appPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
-            var bombImg = string.Format(@"{0}\Assets\Images\bomb.png", appPath);
-
-            var texture = new Texture(bombImg);
-
-            BombSprite = new Sprite(texture);
+            BombSprite = new Sprite(new Texture(string.Format(@"{0}\Assets\Images\bomb.png", appPath)));
             BombSprite.Position = new Vector2f(100, 100);
         }
 
@@ -97,11 +82,7 @@ namespace OceanAirdrop.Sprites
         {
             var appPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
-            var bombImg = string.Format(@"{0}\Assets\Images\apple.png", appPath);
-
-            var texture = new Texture(bombImg);
-
-            AppleSprite = new Sprite(texture);
+            AppleSprite = new Sprite(new Texture(string.Format(@"{0}\Assets\Images\apple.png", appPath)));
             AppleSprite.Position = new Vector2f(300, 300);
         }
 
@@ -112,16 +93,10 @@ namespace OceanAirdrop.Sprites
 
             Color windowColor = new Color(0, 192, 255);
 
-            // Load Game Objects
-            RectangleShape player = CreateSquare(Color.Black, RespawnCentreScreen(), new Vector2f(30, 30));
-            //RectangleShape food = CreateSquare(Color.Magenta, new Vector2f(100, 200), new Vector2f(20, 20));
-            RectangleShape enemy = CreateSquare(Color.Red, new Vector2f(500, 500), new Vector2f(20, 20));
-
             SetupFont();
             SetupPlayerSprite();
             SetupBombSprite();
             SetupAppleSprite();
-
             SetupGameText();
 
             // quick alias
@@ -138,33 +113,24 @@ namespace OceanAirdrop.Sprites
 
                 BombSprite.Position = GameUtils.RandomlyMovePosition(BombSprite.Position, app.Size);
 
-                //enemy.Position = GameUtils.RandomlyMovePosition(enemy.Position, app.Size);
-                //RandomlyMoveEnemy(enemy);
 
-                // Draw things
-                //app.Draw(food);
-                //app.Draw(enemy);
-                //app.Draw(player);
+                buttonText.DisplayedString = XboxController.RefreshButtonPressed();
+                axisText.DisplayedString = XboxController.RefreshAxisPressed();
 
-                RespondToJoystickEvents(player);
+                PlayerSprite.Position = RespondToJoystickEvents(PlayerSprite.Position);
 
-
-                if ( IsPlayerOverFood(player.GetGlobalBounds(), AppleSprite.GetGlobalBounds()) == true )
-                //if (IsPlayerOverFood(player, food) == true)
+                if ( IsPlayerOverFood(PlayerSprite.GetGlobalBounds(), AppleSprite.GetGlobalBounds()) == true )
                 {
                     // Respawn food and increase health!
                     AppleSprite.Position = RespawnRandomLocation();
                     foodCountText.DisplayedString = string.Format("Food: {0}", ++foodCount);
                 }
 
-                if (IsPlayerOverEnemy(player, enemy) == true)
+                if (IsPlayerOverEnemy(PlayerSprite.GetGlobalBounds(), BombSprite.GetGlobalBounds()) == true)
                 {
-                    player.Position = RespawnTopLeftScreen();
+                    PlayerSprite.Position = RespawnTopLeftScreen();
                     killCountext.DisplayedString = string.Format("Killed: {0}", ++killCount);
-
                 }
-
-
 
                 app.Draw(headerText);
                 app.Draw(buttonText);
@@ -177,86 +143,6 @@ namespace OceanAirdrop.Sprites
 
                 // Update the window
                 app.Display();
-            }
-        }
-
-        enum Direction { Up, Down, Left, Right }
-
-        private static void RandomlyMoveEnemy(RectangleShape enemy)
-        {
-            // Lets randomly move the enemy in any direction on the screen. 
-            // up    = 1
-            // down  = 2
-            // left  = 3
-            // right = 4
-
-            int directionChosen = RandomNum.Next(0, 4);
-
-            if (directionChosen == (int)Direction.Up)
-            {
-                var newpos = enemy.Position;
-                newpos.Y += 1;
-                enemy.Position = newpos;
-            }
-
-            if (directionChosen == (int)Direction.Down)
-            {
-                var newpos = enemy.Position;
-                if (enemy.Position.Y == 0)
-                    newpos.Y += 1;
-                else
-                    newpos.Y -= 1;
-
-                enemy.Position = newpos;
-            }
-
-            if (directionChosen == (int)Direction.Left)
-            {
-                var newpos = enemy.Position;
-                newpos.X -= 1;
-                enemy.Position = newpos;
-            }
-
-            if (directionChosen == (int)Direction.Right)
-            {
-                var newpos = enemy.Position;
-                newpos.X += 1;
-                enemy.Position = newpos;
-            }
-
-            EnsureObjectIsOnscreen(enemy);
-
-        }
-
-        private static void EnsureObjectIsOnscreen(RectangleShape enemy)
-        {
-            // make sure enemy stays on the screen
-            if (enemy.Position.Y < 0)
-            {
-                var newpos = enemy.Position;
-                newpos.Y = 10;
-                enemy.Position = newpos;
-            }
-
-            if (enemy.Position.X < 0)
-            {
-                var newpos = enemy.Position;
-                newpos.X = 10;
-                enemy.Position = newpos;
-            }
-
-            if (enemy.Position.X > GameApp.Size.X)
-            {
-                var newpos = enemy.Position;
-                newpos.X = GameApp.Size.X - 10;
-                enemy.Position = newpos;
-            }
-
-            if (enemy.Position.Y > GameApp.Size.Y)
-            {
-                var newpos = enemy.Position;
-                newpos.Y = GameApp.Size.Y - 10;
-                enemy.Position = newpos;
             }
         }
 
@@ -279,40 +165,26 @@ namespace OceanAirdrop.Sprites
 
         }
 
-        static void RespondToJoystickEvents(RectangleShape player)
+        static Vector2f RespondToJoystickEvents(Vector2f pos)
         {
-            buttonText.DisplayedString = XboxController.RefreshButtonPressed();
-            axisText.DisplayedString = XboxController.RefreshAxisPressed();
+            Vector2f newpos = new Vector2f(pos.X, pos.Y);
 
             if (JoyState.HasFlag(ControllerState.DPAD_UP_PRESSED))
-                player.Position = new Vector2f(player.Position.X, player.Position.Y - 1);
+                newpos = new Vector2f(pos.X, pos.Y - 1);
 
             if (JoyState.HasFlag(ControllerState.DPAD_DOWN_PRESSED))
-                player.Position = new Vector2f(player.Position.X, player.Position.Y + 1);
+                newpos = new Vector2f(pos.X, pos.Y + 1);
 
             if (JoyState.HasFlag(ControllerState.DPAD_LEFT_PRESSED))
-                player.Position = new Vector2f(player.Position.X - 1, player.Position.Y);
+                newpos = new Vector2f(pos.X - 1, pos.Y);
 
             if (JoyState.HasFlag(ControllerState.DPAD_RIGHT_PRESSED))
-                player.Position = new Vector2f(player.Position.X + 1, player.Position.Y);
+                newpos = new Vector2f(pos.X + 1, pos.Y);
 
             if (JoyState.HasFlag(ControllerState.B_PRESSED))
-                player.Position = RespawnCentreScreen();
+                newpos = RespawnCentreScreen();
 
-            PlayerSprite.Position = player.Position;
-        }
-
-        static bool IsPlayerOverFood(RectangleShape player, RectangleShape food)
-        {
-            bool result = false;
-
-            if (player.GetGlobalBounds().Intersects(food.GetGlobalBounds()) == true)
-            {
-                result = true;
-                Console.WriteLine("YUM-YUM!");
-            }
-
-            return result;
+            return newpos;
         }
 
         static bool IsPlayerOverFood(FloatRect player, FloatRect food)
@@ -328,11 +200,11 @@ namespace OceanAirdrop.Sprites
             return result;
         }
 
-        static bool IsPlayerOverEnemy(RectangleShape player, RectangleShape enemy)
+        static bool IsPlayerOverEnemy(FloatRect player, FloatRect enemy)
         {
             bool result = false;
 
-            if (player.GetGlobalBounds().Intersects(enemy.GetGlobalBounds()) == true)
+            if (player.Intersects(enemy) == true)
             {
                 result = true;
                 Console.WriteLine("You Go Die-Die!!");
