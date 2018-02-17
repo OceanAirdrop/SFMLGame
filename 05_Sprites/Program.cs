@@ -28,6 +28,8 @@ namespace OceanAirdrop.Sprites
         static Text foodCountText;
         static Text killCountext;
         static Sprite PlayerSprite;
+        static Sprite BombSprite;
+        static Sprite AppleSprite;
 
         static int foodCount = 0;
         static int killCount = 0;
@@ -60,19 +62,47 @@ namespace OceanAirdrop.Sprites
             GameFont = new Font(string.Format(@"{0}\Assets\Fonts\zorque.ttf", appPath));
         }
 
-        static void SetupSprite()
+        static void SetupPlayerSprite()
         {
-            // Load font
             var appPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
-            var playerImage = string.Format(@"{0}\Idle__000.png", appPath);
+            // var playerImage = string.Format(@"{0}\Idle__000.png", appPath);
+
+            var playerImage = string.Format(@"{0}\Assets\Images\player_128.png", appPath);
+
 
             // TODO: Insert Update Code Here
             Texture playertxr = new Texture(playerImage);
             
             PlayerSprite = new Sprite(playertxr);
             PlayerSprite.Position = new Vector2f(100, 100);
-            //PlayerSprite.Scale = new Vector2f(500, 500);
+           // PlayerSprite.Scale = new Vector2f(200, 200);
+        }
+
+        static void SetupBombSprite()
+        {
+            var appPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+
+            var bombImg = string.Format(@"{0}\Assets\Images\bomb.png", appPath);
+
+            var texture = new Texture(bombImg);
+
+            BombSprite = new Sprite(texture);
+            BombSprite.Position = new Vector2f(100, 100);
+        }
+
+
+
+        static void SetupAppleSprite()
+        {
+            var appPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+
+            var bombImg = string.Format(@"{0}\Assets\Images\apple.png", appPath);
+
+            var texture = new Texture(bombImg);
+
+            AppleSprite = new Sprite(texture);
+            AppleSprite.Position = new Vector2f(300, 300);
         }
 
         static void Main(string[] args)
@@ -84,11 +114,13 @@ namespace OceanAirdrop.Sprites
 
             // Load Game Objects
             RectangleShape player = CreateSquare(Color.Black, RespawnCentreScreen(), new Vector2f(30, 30));
-            RectangleShape food = CreateSquare(Color.Magenta, new Vector2f(100, 200), new Vector2f(20, 20));
+            //RectangleShape food = CreateSquare(Color.Magenta, new Vector2f(100, 200), new Vector2f(20, 20));
             RectangleShape enemy = CreateSquare(Color.Red, new Vector2f(500, 500), new Vector2f(20, 20));
 
             SetupFont();
-            SetupSprite();
+            SetupPlayerSprite();
+            SetupBombSprite();
+            SetupAppleSprite();
 
             SetupGameText();
 
@@ -104,19 +136,24 @@ namespace OceanAirdrop.Sprites
                 // Clear screen
                 app.Clear(windowColor);
 
-                RandomlyMoveEnemy(enemy);
+                BombSprite.Position = GameUtils.RandomlyMovePosition(BombSprite.Position, app.Size);
+
+                //enemy.Position = GameUtils.RandomlyMovePosition(enemy.Position, app.Size);
+                //RandomlyMoveEnemy(enemy);
 
                 // Draw things
-                app.Draw(food);
-                app.Draw(enemy);
-                app.Draw(player);
+                //app.Draw(food);
+                //app.Draw(enemy);
+                //app.Draw(player);
 
                 RespondToJoystickEvents(player);
 
-                if (IsPlayerOverFood(player, food) == true)
+
+                if ( IsPlayerOverFood(player.GetGlobalBounds(), AppleSprite.GetGlobalBounds()) == true )
+                //if (IsPlayerOverFood(player, food) == true)
                 {
                     // Respawn food and increase health!
-                    food.Position = RespawnRandomLocation();
+                    AppleSprite.Position = RespawnRandomLocation();
                     foodCountText.DisplayedString = string.Format("Food: {0}", ++foodCount);
                 }
 
@@ -135,6 +172,8 @@ namespace OceanAirdrop.Sprites
                 app.Draw(foodCountText);
                 app.Draw(killCountext);
                 app.Draw(PlayerSprite);
+                app.Draw(BombSprite);
+                app.Draw(AppleSprite);
 
                 // Update the window
                 app.Display();
@@ -268,6 +307,19 @@ namespace OceanAirdrop.Sprites
             bool result = false;
 
             if (player.GetGlobalBounds().Intersects(food.GetGlobalBounds()) == true)
+            {
+                result = true;
+                Console.WriteLine("YUM-YUM!");
+            }
+
+            return result;
+        }
+
+        static bool IsPlayerOverFood(FloatRect player, FloatRect food)
+        {
+            bool result = false;
+
+            if (player.Intersects(food) == true)
             {
                 result = true;
                 Console.WriteLine("YUM-YUM!");
