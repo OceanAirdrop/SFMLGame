@@ -73,11 +73,11 @@ namespace OceanAirdrop.CleanUp
             return new GameEntity(type, sprite);
         }
 
-        static GameEntity SetupBombSprite(EntityType type)
+        static GameEntity CreateSprite(EntityType type, string fileName)
         {
             var appPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
-            var sprite = new Sprite(new Texture(string.Format(@"{0}\Assets\Images\bomb.png", appPath)));
+            var sprite = new Sprite(new Texture(string.Format(@"{0}\Assets\Images\{1}", appPath, fileName)));
             sprite.Position = new Vector2f(100, 100);
 
             return new GameEntity(type, sprite);
@@ -101,12 +101,16 @@ namespace OceanAirdrop.CleanUp
             
             GameObjectList.Add(CreatePlayerSprite(EntityType.MainPlayer));
 
-            for (int nLoopCnt = 0; nLoopCnt < 100; nLoopCnt++)
+            for (int nLoopCnt = 0; nLoopCnt < 10; nLoopCnt++)
                 GameObjectList.Add(CreateAppleSprite(EntityType.Food));
             
-            for( int nLoopCnt = 0; nLoopCnt < 100; nLoopCnt++)
-                GameObjectList.Add(SetupBombSprite(EntityType.Bomb));
+            for( int nLoopCnt = 0; nLoopCnt < 10; nLoopCnt++)
+                GameObjectList.Add(CreateSprite(EntityType.Bomb, "beee42.png"));
 
+            GameObjectList.Add(CreateSprite(EntityType.Bomb, "beee64.png"));
+            GameObjectList.Add(CreateSprite(EntityType.Bomb, "beee64.png"));
+            GameObjectList.Add(CreateSprite(EntityType.Bomb, "beee16.png"));
+            GameObjectList.Add(CreateSprite(EntityType.Bomb, "beee16.png"));
         }
 
         static void Main(string[] args)
@@ -145,8 +149,8 @@ namespace OceanAirdrop.CleanUp
                 }
 
                 app.Draw(headerText);
-                app.Draw(buttonText);
-                app.Draw(axisText);
+                //app.Draw(buttonText);
+                //app.Draw(axisText);
                 app.Draw(foodCountText);
                 app.Draw(killCountext);
 
@@ -161,6 +165,8 @@ namespace OceanAirdrop.CleanUp
 
             var foodList = GameObjectList.Where(x => x.Type == EntityType.Food);
 
+            var removeList = new List<GameEntity>();
+
             foreach (var bomb in foodList)
             {
                 var sprite = bomb.ToSprite();
@@ -168,10 +174,16 @@ namespace OceanAirdrop.CleanUp
                 if (IsPlayerOverFood(player.GetGlobalBounds(), sprite.GetGlobalBounds()) == true)
                 {
                     // Respawn food and increase health!
-                    sprite.Position = RespawnRandomLocation();
-                    foodCountText.DisplayedString = string.Format("Food: {0}", ++foodCount);
+                    //sprite.Position = RespawnRandomLocation();
+                    //foodCountText.DisplayedString = string.Format("Food: {0}", ++foodCount);
+
+                    removeList.Add(bomb);
                 }
             }
+
+            // Player has eaten this apple so lets move on! 
+            foreach (var x in removeList)
+                GameObjectList.Remove(x);
         }
 
         private static void CheckIfPlayerOverBomb()
