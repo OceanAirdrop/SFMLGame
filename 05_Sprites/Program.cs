@@ -104,7 +104,7 @@ namespace OceanAirdrop.Sprites
                 // Clear screen
                 app.Clear(windowColor);
 
-
+                RandomlyMoveEnemy(enemy);
 
                 // Draw things
                 app.Draw(food);
@@ -138,6 +138,86 @@ namespace OceanAirdrop.Sprites
 
                 // Update the window
                 app.Display();
+            }
+        }
+
+        enum Direction { Up, Down, Left, Right }
+
+        private static void RandomlyMoveEnemy(RectangleShape enemy)
+        {
+            // Lets randomly move the enemy in any direction on the screen. 
+            // up    = 1
+            // down  = 2
+            // left  = 3
+            // right = 4
+
+            int directionChosen = RandomNum.Next(0, 4);
+
+            if (directionChosen == (int)Direction.Up)
+            {
+                var newpos = enemy.Position;
+                newpos.Y += 1;
+                enemy.Position = newpos;
+            }
+
+            if (directionChosen == (int)Direction.Down)
+            {
+                var newpos = enemy.Position;
+                if (enemy.Position.Y == 0)
+                    newpos.Y += 1;
+                else
+                    newpos.Y -= 1;
+
+                enemy.Position = newpos;
+            }
+
+            if (directionChosen == (int)Direction.Left)
+            {
+                var newpos = enemy.Position;
+                newpos.X -= 1;
+                enemy.Position = newpos;
+            }
+
+            if (directionChosen == (int)Direction.Right)
+            {
+                var newpos = enemy.Position;
+                newpos.X += 1;
+                enemy.Position = newpos;
+            }
+
+            EnsureObjectIsOnscreen(enemy);
+
+        }
+
+        private static void EnsureObjectIsOnscreen(RectangleShape enemy)
+        {
+            // make sure enemy stays on the screen
+            if (enemy.Position.Y < 0)
+            {
+                var newpos = enemy.Position;
+                newpos.Y = 10;
+                enemy.Position = newpos;
+            }
+
+            if (enemy.Position.X < 0)
+            {
+                var newpos = enemy.Position;
+                newpos.X = 10;
+                enemy.Position = newpos;
+            }
+
+            if (enemy.Position.X > GameApp.Size.X)
+            {
+                var newpos = enemy.Position;
+                newpos.X = GameApp.Size.X - 10;
+                enemy.Position = newpos;
+            }
+
+            if (enemy.Position.Y > GameApp.Size.Y)
+            {
+                var newpos = enemy.Position;
+                newpos.Y = GameApp.Size.Y - 10;
+                enemy.Position = newpos;
             }
         }
 
