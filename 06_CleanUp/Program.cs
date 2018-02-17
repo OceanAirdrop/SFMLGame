@@ -1,4 +1,5 @@
 ﻿using OceanAirdrop.SharedLib;
+using OceanAirdrop.SharedLib.Model;
 using SFML.Graphics;
 using SFML.Window;
 using System;
@@ -9,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static OceanAirdrop.SharedLib.XboxController;
 
-namespace OceanAirdrop.Sprites
+namespace OceanAirdrop.CleanUp
 {
     class Program
     {
@@ -27,12 +28,14 @@ namespace OceanAirdrop.Sprites
         static Text axisText;
         static Text foodCountText;
         static Text killCountext;
-        static Sprite PlayerSprite;
-        static Sprite BombSprite;
-        static Sprite AppleSprite;
+        //static Sprite PlayerSprite;
+        //static Sprite BombSprite;
+        //static Sprite sprite;
 
         static int foodCount = 0;
         static int killCount = 0;
+
+        static List<GameEntity> GameObjectList = new List<GameEntity>();
 
 
 
@@ -60,28 +63,50 @@ namespace OceanAirdrop.Sprites
             GameFont = new Font(string.Format(@"{0}\Assets\Fonts\zorque.ttf", appPath));
         }
 
-        static void SetupPlayerSprite()
+        static GameEntity CreatePlayerSprite(EntityType type)
         {
             var appPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
-            PlayerSprite = new Sprite(new Texture(string.Format(@"{0}\Assets\Images\player_128.png", appPath)));
-            PlayerSprite.Position = RespawnRandomLocation();
+            var sprite = new Sprite(new Texture(string.Format(@"{0}\Assets\Images\player_128.png", appPath)));
+            sprite.Position = RespawnRandomLocation();
+
+            return new GameEntity(type, sprite);
         }
 
-        static void SetupBombSprite()
+        static GameEntity SetupBombSprite(EntityType type)
         {
             var appPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
-            BombSprite = new Sprite(new Texture(string.Format(@"{0}\Assets\Images\bomb.png", appPath)));
-            BombSprite.Position = new Vector2f(100, 100);
+            var sprite = new Sprite(new Texture(string.Format(@"{0}\Assets\Images\bomb.png", appPath)));
+            sprite.Position = new Vector2f(100, 100);
+
+            return new GameEntity(type, sprite);
         }
 
-        static void SetupAppleSprite()
+        static GameEntity CreateAppleSprite(EntityType type)
         {
             var appPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
-            AppleSprite = new Sprite(new Texture(string.Format(@"{0}\Assets\Images\apple.png", appPath)));
-            AppleSprite.Position = new Vector2f(300, 300);
+            var sprite = new Sprite(new Texture(string.Format(@"{0}\Assets\Images\apple.png", appPath)));
+            //sprite.Position = new Vector2f(300, 300);
+
+            sprite.Position = RespawnRandomLocation();
+
+            return new GameEntity(type, sprite);
+        }
+
+
+        static void SetupGameObjects()
+        {
+            
+            GameObjectList.Add(CreatePlayerSprite(EntityType.MainPlayer));
+
+            for (int nLoopCnt = 0; nLoopCnt < 100; nLoopCnt++)
+                GameObjectList.Add(CreateAppleSprite(EntityType.Food));
+            
+            for( int nLoopCnt = 0; nLoopCnt < 100; nLoopCnt++)
+                GameObjectList.Add(SetupBombSprite(EntityType.Bomb));
+
         }
 
         static void Main(string[] args)
@@ -92,9 +117,7 @@ namespace OceanAirdrop.Sprites
             Color windowColor = new Color(0, 192, 255);
 
             SetupFont();
-            SetupPlayerSprite();
-            SetupBombSprite();
-            SetupAppleSprite();
+            SetupGameObjects();
             SetupGameText();
 
             // quick alias
@@ -109,25 +132,16 @@ namespace OceanAirdrop.Sprites
                 // Clear screen
                 app.Clear(windowColor);
 
-                BombSprite.Position = GameUtils.RandomlyMovePosition(BombSprite.Position, app.Size);
+                // Perform Game Logic
+                JoystickEvents();
+                MoveBombPositions();
+                CheckIfPlayerOverFood();
+                CheckIfPlayerOverBomb();
 
-
-                buttonText.DisplayedString = XboxController.RefreshButtonPressed();
-                axisText.DisplayedString = XboxController.RefreshAxisPressed();
-
-                PlayerSprite.Position = RespondToJoystickEvents(PlayerSprite.Position);
-
-                if ( IsPlayerOverFood(PlayerSprite.GetGlobalBounds(), AppleSprite.GetGlobalBounds()) == true )
+                // Update Screen
+                foreach ( var gameEntity in GameObjectList )
                 {
-                    // Respawn food and increase health!
-                    AppleSprite.Position = RespawnRandomLocation();
-                    foodCountText.DisplayedString = string.Format("Food: {0}", ++foodCount);
-                }
-
-                if (IsPlayerOverEnemy(PlayerSprite.GetGlobalBounds(), BombSprite.GetGlobalBounds()) == true)
-                {
-                    PlayerSprite.Position = RespawnTopLeftScreen();
-                    killCountext.DisplayedString = string.Format("Killed: {0}", ++killCount);
+                    app.Draw(gameEntity.GameObj);
                 }
 
                 app.Draw(headerText);
@@ -135,12 +149,74 @@ namespace OceanAirdrop.Sprites
                 app.Draw(axisText);
                 app.Draw(foodCountText);
                 app.Draw(killCountext);
-                app.Draw(PlayerSprite);
-                app.Draw(BombSprite);
-                app.Draw(AppleSprite);
 
                 // Update the window
                 app.Display();
+            }
+        }
+
+        private static void CheckIfPlayerOverFood()
+        {
+            var player = GetPlayerObject().ToSprite();
+
+            var foodList = GameObjectList.Where(x => x.Type == EntityType.Food);
+
+            foreach (var bomb in foodList)
+            {
+                var sprite = bomb.ToSprite();
+
+                if (IsPlayerOverFood(player.GetGlobalBounds(), sprite.GetGlobalBounds()) == true)
+                {
+                    // Respawn food and increase health!
+                    sprite.Position = RespawnRandomLocation();
+                    foodCountText.DisplayedString = string.Format("Food: {0}", ++foodCount);
+                }
+            }
+        }
+
+        private static void CheckIfPlayerOverBomb()
+        {
+            var player = GetPlayerObject().ToSprite();
+
+            var bombList = GameObjectList.Where(x => x.Type == EntityType.Bomb);
+
+            foreach (var gameObj in bombList)
+            {
+                var bomb = gameObj.ToSprite();
+
+                if (IsPlayerOverEnemy(player.GetGlobalBounds(), bomb.GetGlobalBounds()) == true)
+                {
+                    // Respawn food and increase health!
+                    player.Position = RespawnTopLeftScreen();
+                    killCountext.DisplayedString = string.Format("Killed: {0}", ++killCount);
+                }
+            }
+        }
+
+
+        private static GameEntity GetPlayerObject()
+        {
+           return GameObjectList.Where(x => x.Type == EntityType.MainPlayer).FirstOrDefault();
+        }
+
+        private static void JoystickEvents()
+        {
+            buttonText.DisplayedString = XboxController.RefreshButtonPressed();
+            axisText.DisplayedString = XboxController.RefreshAxisPressed();
+
+            var obj = GetPlayerObject();
+
+            var playerSprite = (Sprite)obj.GameObj;
+
+            playerSprite.Position = RespondToJoystickEvents(playerSprite.Position);
+        }
+
+        private static void MoveBombPositions()
+        {
+            foreach (var bomb in GameObjectList.Where(x => x.Type == EntityType.Bomb))
+            {
+                var sprite = (Sprite)bomb.GameObj;
+                sprite.Position = GameUtils.RandomlyMovePosition(sprite.Position, GameApp.Size, 1);
             }
         }
 

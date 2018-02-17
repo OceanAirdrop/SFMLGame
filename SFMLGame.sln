@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "04_Fonts", "04_Fonts\04_Fon
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "05_Sprites", "05_Sprites\05_Sprites.csproj", "{C7CF1474-54CE-4F20-BB5D-F55768BB6693}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "06_CleanUp", "06_CleanUp\06_CleanUp.csproj", "{240D865F-55DD-4AB4-A81E-47507F9C2516}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,6 +99,18 @@ Global
 		{C7CF1474-54CE-4F20-BB5D-F55768BB6693}.x86|Any CPU.Build.0 = Release|Any CPU
 		{C7CF1474-54CE-4F20-BB5D-F55768BB6693}.x86|x86.ActiveCfg = Release|Any CPU
 		{C7CF1474-54CE-4F20-BB5D-F55768BB6693}.x86|x86.Build.0 = Release|Any CPU
+		{240D865F-55DD-4AB4-A81E-47507F9C2516}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{240D865F-55DD-4AB4-A81E-47507F9C2516}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{240D865F-55DD-4AB4-A81E-47507F9C2516}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{240D865F-55DD-4AB4-A81E-47507F9C2516}.Debug|x86.Build.0 = Debug|Any CPU
+		{240D865F-55DD-4AB4-A81E-47507F9C2516}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{240D865F-55DD-4AB4-A81E-47507F9C2516}.Release|Any CPU.Build.0 = Release|Any CPU
+		{240D865F-55DD-4AB4-A81E-47507F9C2516}.Release|x86.ActiveCfg = Release|Any CPU
+		{240D865F-55DD-4AB4-A81E-47507F9C2516}.Release|x86.Build.0 = Release|Any CPU
+		{240D865F-55DD-4AB4-A81E-47507F9C2516}.x86|Any CPU.ActiveCfg = Release|Any CPU
+		{240D865F-55DD-4AB4-A81E-47507F9C2516}.x86|Any CPU.Build.0 = Release|Any CPU
+		{240D865F-55DD-4AB4-A81E-47507F9C2516}.x86|x86.ActiveCfg = Release|Any CPU
+		{240D865F-55DD-4AB4-A81E-47507F9C2516}.x86|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

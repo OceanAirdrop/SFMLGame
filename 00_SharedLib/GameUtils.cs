@@ -14,7 +14,7 @@ namespace OceanAirdrop.SharedLib
 
         private enum Direction { Up, Down, Left, Right }
 
-        public static Vector2f RandomlyMovePosition(Vector2f pos, Vector2u windowSize)
+        public static Vector2f RandomlyMovePosition(Vector2f pos, Vector2u windowSize, int incrementToMove = 1)
         {
             // Lets randomly move the enemy in any direction on the screen. 
             // up    = 1
@@ -29,7 +29,7 @@ namespace OceanAirdrop.SharedLib
             if (directionChosen == (int)Direction.Up)
             {
                 newpos = pos;
-                newpos.Y += 1;
+                newpos.Y += incrementToMove;
                 pos = newpos;
             }
 
@@ -37,9 +37,9 @@ namespace OceanAirdrop.SharedLib
             {
                 newpos = pos;
                 if (pos.Y == 0)
-                    newpos.Y += 1;
+                    newpos.Y += incrementToMove;
                 else
-                    newpos.Y -= 1;
+                    newpos.Y -= incrementToMove;
 
                 pos = newpos;
             }
@@ -47,14 +47,14 @@ namespace OceanAirdrop.SharedLib
             if (directionChosen == (int)Direction.Left)
             {
                 newpos = pos;
-                newpos.X -= 1;
+                newpos.X -= incrementToMove;
                 pos = newpos;
             }
 
             if (directionChosen == (int)Direction.Right)
             {
                 newpos = pos;
-                newpos.X += 1;
+                newpos.X += incrementToMove;
                 pos = newpos;
             }
 
