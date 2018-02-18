@@ -18,7 +18,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\GameBin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -67,8 +67,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GameManager.cs" />
+    <Compile Include="GameState.cs" />
+    <Compile Include="GameTriggers.cs" />
     <Compile Include="GameUtils.cs" />
     <Compile Include="Model\GameEntity.cs" />
+    <Compile Include="Model\IGameTrigger.cs" />
     <Compile Include="XboxController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static OceanAirdrop.SharedLib.XboxController;
 
-namespace OceanAirdrop.CleanUp
+namespace OceanAirdrop.SoundFX
 {
     class Program
     {
@@ -29,6 +29,9 @@ namespace OceanAirdrop.CleanUp
         static Text axisText;
         static Text foodCountText;
         static Text killCountext;
+
+
+        static Music EatAppleSFX;
 
         static int foodCount = 0;
         static int killCount = 0;
@@ -81,6 +84,87 @@ namespace OceanAirdrop.CleanUp
             return new GameEntity(type, sprite);
         }
 
+        static void SetupSoundFX()
+        {
+            var appPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+
+            var eatApple = string.Format(@"{0}\Assets\Sounds\drink_straw.wav", appPath);
+
+            //PlaySound();
+            //PlayMusic();
+
+
+
+            // Load a music to play
+            EatAppleSFX = new Music(eatApple);
+        }
+
+        /// <summary>
+        /// Play a sound
+        /// </summary>
+        private static void PlaySound()
+        {
+            var appPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            var eatApple = string.Format(@"{0}\Assets\Sounds\drink_straw.wav", appPath);
+
+            eatApple = "C:/OceanAirdrop/SFMLGame/Assets/Sounds/drink_straw.wav";
+
+            // Load a sound buffer from a wav file
+            SoundBuffer buffer = new SoundBuffer(eatApple);
+
+            // Display sound informations
+            Console.WriteLine("canary.wav :");
+            Console.WriteLine(" " + buffer.Duration + " sec");
+            Console.WriteLine(" " + buffer.SampleRate + " samples / sec");
+            Console.WriteLine(" " + buffer.ChannelCount + " channels");
+
+            // Create a sound instance and play it
+            Sound sound = new Sound(buffer);
+            sound.Play();
+
+            // Loop while the sound is playing
+            while (sound.Status == SoundStatus.Playing)
+            {
+                // Display the playing position
+                Console.CursorLeft = 0;
+                Console.Write("Playing... " + sound.PlayingOffset + " sec     ");
+
+                // Leave some CPU time for other processes
+            }
+        }
+
+        /// <summary>
+        /// Play a music
+        /// </summary>
+        private static void PlayMusic()
+        {
+            var appPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            var eatApple = string.Format(@"{0}\Assets\Sounds\drink_straw.wav", appPath);
+            eatApple = "C:/OceanAirdrop/SFMLGame/Assets/Sounds/drink_straw.wav";
+
+            // Load an ogg music file
+            Music music = new Music(eatApple);
+
+            // Display music informations
+            Console.WriteLine("orchestral.ogg :");
+            Console.WriteLine(" " + music.Duration + " sec");
+            Console.WriteLine(" " + music.SampleRate + " samples / sec");
+            Console.WriteLine(" " + music.ChannelCount + " channels");
+
+            // Play it
+            music.Play();
+
+            // Loop while the music is playing
+            while (music.Status == SoundStatus.Playing)
+            {
+                // Display the playing position
+                Console.CursorLeft = 0;
+                Console.Write("Playing... " + music.PlayingOffset + " sec     ");
+
+
+            }
+        }
+
         static void SetupGameObjects()
         {
             var gameObjList = GameManager.GameObjectList;
@@ -89,8 +173,8 @@ namespace OceanAirdrop.CleanUp
 
             for (int nLoopCnt = 0; nLoopCnt < 10; nLoopCnt++)
                 gameObjList.Add(CreateAppleSprite(EntityType.Food));
-            
-            for( int nLoopCnt = 0; nLoopCnt < 10; nLoopCnt++)
+
+            for (int nLoopCnt = 0; nLoopCnt < 10; nLoopCnt++)
                 gameObjList.Add(CreateSprite(EntityType.Bomb, "beee42.png"));
 
             gameObjList.Add(CreateSprite(EntityType.Bomb, "beee64.png"));
@@ -105,6 +189,8 @@ namespace OceanAirdrop.CleanUp
             GameApp.Closed += new EventHandler(OnClose);
 
             Color windowColor = new Color(0, 192, 255);
+
+            SetupSoundFX();
             SetupFont();
             SetupGameObjects();
             SetupGameText();
@@ -128,12 +214,14 @@ namespace OceanAirdrop.CleanUp
                 CheckIfPlayerOverBomb();
 
                 // Update Screen
-                foreach ( var gameEntity in GameManager.GameObjectList )
+                foreach (var gameEntity in GameManager.GameObjectList)
                 {
                     app.Draw(gameEntity.GameObj);
                 }
 
                 app.Draw(headerText);
+                //app.Draw(buttonText);
+                //app.Draw(axisText);
                 app.Draw(foodCountText);
                 app.Draw(killCountext);
 
@@ -156,6 +244,12 @@ namespace OceanAirdrop.CleanUp
 
                 if (IsPlayerOverFood(player.GetGlobalBounds(), sprite.GetGlobalBounds()) == true)
                 {
+                    // Respawn food and increase health!
+                    //sprite.Position = RespawnRandomLocation();
+                    //foodCountText.DisplayedString = string.Format("Food: {0}", ++foodCount);
+
+                    EatAppleSFX.Play();
+
                     removeList.Add(bomb);
                 }
             }
